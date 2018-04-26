@@ -1,10 +1,6 @@
-#include <stdint.h>
-#define uchar_t unsigned char
+#include "__mem.h"
 
-void memset(void *dst, int val, uint32_t n);
-void __fill_mem(void *dst, int val, uint32_t n);
-
-void memset(void *dst, int val, uint32_t n) {
+void* memset(void *dst, int val, size_t n) {
 	__fill_mem(dst, val, n);
 }
 
@@ -54,4 +50,13 @@ void __fill_mem(void *dst, int val, uint32_t n) {
 			*ptr1++ = v;
 		} while (--n);
 	}
+}
+
+void* memcpy(void *dst, const void *src, size_t n) {
+	const char *s = src;
+	char *d = dst;
+	while (n--) {
+		*d++ = *s++;
+	}
+	return dst;
 }

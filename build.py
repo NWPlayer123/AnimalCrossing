@@ -2,7 +2,7 @@ from subprocess import Popen
 from os.path import exists
 from os import walk, mkdir, makedirs
 
-do_run = 1
+do_run = 0
 linker = []
 if not exists("build"):
     mkdir("build")
@@ -15,10 +15,13 @@ for root, dirs, files in walk("."):
                 makedirs(".\\build\\" + root[2:])
             if do_run:
                 Popen(["C:/devkitPro/devkitPPC/bin/powerpc-eabi-gcc.exe", "-c",
-                        "-fno-builtin", "-Og", "-o", obj_file, pathname]).wait()
+                    "-DGEKKO", "-mcpu=750", "-mhard-float", "-fno-builtin",
+                    "-nodefaultlibs", "-nostdlib", "-nostartfiles", "-Og", "-o",
+                    obj_file, pathname]).wait()
             else:
                 print(" ".join(["C:/devkitPro/devkitPPC/bin/powerpc-eabi-gcc.exe",
-                          "-c", "-fno-builtin", "-Og", "-o", obj_file, pathname]))
+                    "-DGEKKO", "-mcpu=750", "-mhard-float", "-c", "-fno-builtin",
+                    "-Og", "-o", obj_file, pathname]))
             linker.append(obj_file)
 if do_run:
     Popen(["C:/devkitPro/devkitPPC/bin/powerpc-eabi-ld.exe"] + linker + \
