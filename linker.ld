@@ -16,6 +16,7 @@ SECTIONS
     .rodata     : ALIGN(4) { *(.rodata*); . = ALIGN(4); }
     .data       : ALIGN(4) { *(.data*); . = ALIGN(4); }
     .bss        : ALIGN(8) { __bss_start = .; *(.bss* COMMON); . = ALIGN(8); __bss_end = .; }
+    .sbss       : ALIGN(8) { *(.sbss*); . = ALIGN(8); }
 
     . = ALIGN(4);
 }

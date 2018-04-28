@@ -1,99 +1,155 @@
+//I didn't mean for this to be all hand-coded assembly, it just kinda ended up that way
 #include "__start.h"
 
-void __check_pad3(void) {
-	
-}
+__asm__(
+	".global __check_pad3\n"
+	"__check_pad3:\n"
+	"lis        3, 0x8000\n"
+	"lhz        0, 0x30E4(3)\n"
+	"li         3, 0xEEF\n"
+	"and        0, 0, 3\n"
+	"cmpwi      0, 0xEEF\n"
+	"bnelr\n"
+	"li         3, 0\n"
+	"li         4, 0\n"
+	"li         5, 0\n"
+	"bl         OSResetSystem\n"
+	"blr\n"
+);
 
-void __start(void) {
-	__init_registers();
-	__init_hardware();
-	__init_data();
-	*(uint32_t*)0x80000044 = 0; //Debugger Exception mask
-	uint32_t r7 = 0;
-	
-	
-	/*if (*(uint32_t*)0x800000F4 == 0) {
-		uint32_t r5 = *(uint32_t*)0x80000034;
-		if (r5 != 0) {
-			r7 = *(uint32_t*)0x800030E8; //yagcd is useless
-		}
-	} else {
-		r7 = r7 = *(uint32_t*)0x80000100; //System Reset Interrupt
-	}
-	if (r7 == 2) {
-		r5 = 0;
-		asm( //don't trust it to optimize, I'll check later
-			"lis       6, InitMetroTRK\n"
-			"addi      6, 6, InitMetroTRK\n"
-			"mtlr      6\n"
-			"blrl\n"
-		);
-	} else if (r7 == 3) {
-		r5 = 1;
-		asm( //don't trust it to optimize, I'll check later
-			"lis       6, InitMetroTRK\n"
-			"addi      6, 6, InitMetroTRK\n"
-			"mtlr      6\n"
-			"blrl\n"
-		);
-	else
-		r5 = 0;
-	
-	if (*(uint32_t*)0x800000F4 != 0) {
-		r7 = *(uint32_t*)0x80000100; //System Reset Interrupt
-		if (r7 == 2) {
-			asm( //don't trust it to optimize, I'll check later
-				"lis       6, InitMetroTRK\n"
-				"addi      6, 6, InitMetroTRK\n"
-				"mtlr      6\n"
-				"blrl\n"
-			);
-		} else if (r7 == 3) {
-			r5 = 1;
-		} else {
-	} else if (*(uint32_t*)0x80000034 != 0) {
-		r7 = *(uint32_t*)0x800030E8; //yagcd is useless
-	}
-	if (*(uint32_t*)0x800000F4 == 0) {
-		if (*(uint32_t*)0x80000034 != 0)
-			r7 = *(uint32_t*)0x800030E8; //yagcd is useless
-	} else
-		r7 = *(uint32_t*)0x80000100; //System Reset Interrupt
-	
-	if (r7 == 2) {
-		asm( //don't trust it to optimize, I'll check later
-			"lis       6, InitMetroTRK\n"
-			"addi      6, 6, InitMetroTRK\n"
-			"mtlr      6\n"
-			"blrl\n"
-		);
-	}*/
-	DBInit();
-	OSInit();
-	if (*(uint16_t*)0x800030E6 & 0x8000 == 0 || *(uint16_t*)0x800030E6 & 0x7FFF == 1)
-		__check_pad3();
-	
-	//__init_user();
-	main1();
-	//exit(); //should theoretically never get here
-}
+__asm__(
+	".global __start\n"
+	"__start:\n"
+	"bl         __init_registers\n"
+	"bl         __init_hardware\n"
+	"bl         __init_data\n"
+	"li         0, 0\n"
+	"lis        6, 0x8000\n"
+	"stw        0, 0x44(6)\n"
+	"lwz        6, 0xF4(6)\n"
+	"cmplwi     6, 0\n"
+	"beq        label1\n"
+	"lwz        7, 12(6)\n"
+	"b          label2\n"
+	"label1:\n"
+	"lis        5, 0x8000\n"
+	"lwz        5, 0x34(5)\n"
+	"cmplwi     5, 0\n"
+	"beq        label4\n"
+	"lis        7, 0x8000\n"
+	"lwz        7, 0x30E8(7)\n"
+	"label2:\n"
+	"li         5, 0\n"
+	"cmplwi     7, 2\n"
+	"beq        label3\n"
+	"cmplwi     7, 3\n"
+	"bne        label4\n"
+	"li         5, 1\n"
+	"label3:\n"
+	"lis        6, InitMetroTRK@ha\n"
+	"addi       6, 6, InitMetroTRK@l\n"
+	"mtlr       6\n"
+	"blrl\n"
+	"label4:\n"
+	"lis        6, 0x8000\n"
+	"lwz        5, 0xF4(6)\n"
+	"cmplwi     5, 0\n"
+	"beq+       label6\n"
+	"lwz        6, 8(5)\n"
+	"cmplwi     6, 0\n"
+	"beq+       label6\n"
+	"add        6, 5, 6\n"
+	"lwz        14, 0(6)\n"
+	"cmplwi     14, 0\n"
+	"beq        label6\n"
+	"addi       15, 6, 4\n"
+	"mtctr      14\n"
+	"label5:\n"
+	"addi       6, 6, 4\n"
+	"lwz        7, 0(6)\n"
+	"add        7, 7, 5\n"
+	"stw        7, 0(6)\n"
+	"bdnz       label5\n"
+	"clrrwi     7, 15, 5\n"
+	"lis        5, 0x8000\n"
+	"stw        7, 0x34(5)\n"
+	"b          label7\n"
+	"label6:\n"
+	"li         14, 0\n"
+	"li         15, 0\n"
+	"label7:\n"
+	"bl         DBInit\n"
+	"bl         OSInit\n"
+	"lis        4, 0x8000\n"
+	"lhz        3, 0x30E6(4)\n"
+	"lis        4, 0x8000\n"
+	"and.       5, 3, 4\n"
+	"beq        label8\n"
+	"lis        4, 0x7FFF\n"
+	"and        3, 3, 4\n"
+	"cmplwi     3, 1\n"
+	"bne        label9\n"
+	"label8:\n"
+	"bl         __check_pad3\n"
+	"label9:\n"
+	"bl         __init_user\n"
+	"mr         3, 14\n"
+	"mr         4, 15\n"
+	"bl         main1\n"
+	"b          exit\n"
+);
 
-void __init_registers(void) {
-	return; //TODO: implement the TOC and shit when you get farther
-}
+__asm__(
+	".global __init_registers\n"
+	"__init_registers:\n"
+	"lis        1, 0x8021\n" //fuckin, just hardcode stack cuz it's being a pain
+	"ori        1, 1, 0xA710\n"
+	"lis        2, 0x8022\n"
+	"ori        2, 2, 0xBE0\n"
+	"lis        13, 0x8021\n"
+	"ori        13, 13, 0xFB80\n"
+	"blr\n"
+);
 
-void __init_data(void) { //TODO: add linker shit to export all sections for it to init
-	uint32_t* increment = (uint32_t*)0x8000556C;
-	while (*(increment + 8) != 0) {
-		if (*increment != *(increment + 4)) {
-			//memcpy(*(increment + 4), *increment, *(increment + 8));
-			__flush_cache(*(increment + 4), *(increment + 8));
-		}
-		increment += 12; //next 3 words
-	}
-	increment = (uint32_t*)0x800055F0;
-	while (*(increment + 4) != 0) {
-		memset((void*)*increment, 0, *(increment + 4));
-		increment += 8;
-	}
-}
+__asm__( //TODO: change this address cuz it's using extab
+	".global __init_data\n"
+	"__init_data:\n"
+	/*"mflr       0\n"
+	"lis        3, 0x8000\n"
+	"addi       29, 3, 0x556C\n"
+	"label10:\n"
+	"lwz        30, 8(29)\n"
+	"cmplwi     30, 0\n"
+	"beq        label12\n"
+	"lwz        4, 0(29)\n"
+	"lwz        31, 4(29)\n"
+	"beq        label11\n"
+	"cmplw      31, 4\n"
+	"beq        label11\n"
+	"mr         3, 31\n"
+	"mr         5, 30\n"
+	"bl         memcpy\n"
+	"mr         3, 31\n"
+	"mr         4, 30\n"
+	"bl         __flush_cache\n"
+	"label11:\n"
+	"addi       29, 29, 12\n"
+	"b          label10\n"
+	"label12:\n"
+	"lis        3, 0x8000\n"
+	"addi       29, 3, 0x55F0\n"
+	"label13:\n"
+	"lwz        5, 4(29)\n"
+	"cmplwi     5, 0\n"
+	"beq        label15\n"
+	"lwz        3, 0(29)\n"
+	"beq        label14\n"
+	"li         4, 0\n"
+	"bl         memset\n"
+	"label14:\n"
+	"addi       29, 29, 8\n"
+	"b          label13\n"
+	"label15:\n"
+	"mtlr       0\n"*/
+	"blr\n"
+);

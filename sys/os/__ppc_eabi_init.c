@@ -7,8 +7,8 @@ __asm__(
 	"ori       0, 0, 0x2000\n"
 	"mtmsr     0\n"
 	"mflr      31\n"
-	/*"bl        __OSPSInit\n"
-	"bl        __OSCacheInit\n"*/
+	"bl        __OSPSInit\n"
+	"bl        __OSCacheInit\n"
 	"mtlr      31\n"
 	"blr\n"
 );
@@ -30,6 +30,11 @@ __asm__(
 	"isync\n"
 	"blr\n"
 );
-/*__init_user
-__init_cpp
-_ExitProcess*/
+
+void __init_user(void) {
+	__init_cpp();
+}
+void __init_cpp(void) {
+	
+}
+//_ExitProcess
