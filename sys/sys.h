@@ -9,3 +9,4 @@
 #include "pad/Pad.h"
 #include "AmcExi2Stubs.h"
 #include "db.h"
+#include "global.h"

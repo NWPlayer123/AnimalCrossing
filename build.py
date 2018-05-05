@@ -29,3 +29,4 @@ if do_run:
 else:
     print(" ".join(["C:/devkitPro/devkitPPC/bin/powerpc-eabi-ld.exe"] + linker + \
                         ["-nostartfiles", "-T", "linker.ld", "-o", "output.elf"]))
+print

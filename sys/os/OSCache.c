@@ -4,9 +4,9 @@ __asm__(
 	".global DCEnable\n"
 	"DCEnable:\n"
 	"sync\n"
-	"mfspr      3, 0x3F0\n"
-	"ori        3, 3, 0x4000\n"
-	"mtspr      0x3F0, 3\n"
+	"mfspr     3, 0x3F0\n"
+	"ori       3, 3, 0x4000\n"
+	"mtspr     0x3F0, 3\n"
 	"blr\n"
 );
 
@@ -29,20 +29,149 @@ __asm__(
 	"blr\n"
 );
 
-/*DCFlushRange
-DCStoreRange
-DCFlushRangeNoSync
-DCStoreRangeNoSync
-DCZeroRange
-DCTouchRange
-ICInvalidateRange*/
+__asm__(
+	".global DCFlushRange\n"
+	"DCFlushRange:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label3\n"
+	"addi      4, 4, 0x20\n"
+	"label3:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label4:\n"
+	"dcbf      0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label4\n"
+	"sc\n"
+	"blr\n"
+);
+
+__asm__(
+	".global DCStoreRange\n"
+	"DCStoreRange:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label5\n"
+	"addi      4, 4, 0x20\n"
+	"label5:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label6:\n"
+	"dcbst     0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label6\n"
+	"sc\n"
+	"blr\n"
+);
+
+__asm__(
+	".global DCFlushRangeNoSync\n"
+	"DCFlushRangeNoSync:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label7\n"
+	"addi      4, 4, 0x20\n"
+	"label7:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label8:\n"
+	"dcbf      0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label8\n"
+	"blr\n"
+);
+
+__asm__(
+	".global DCStoreRangeNoSync\n"
+	"DCStoreRangeNoSync:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label9\n"
+	"addi      4, 4, 0x20\n"
+	"label9:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label10:\n"
+	"dcbst     0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label10\n"
+	"blr\n"
+);
+
+__asm__(
+	".global DCZeroRange\n"
+	"DCZeroRange:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label11\n"
+	"addi      4, 4, 0x20\n"
+	"label11:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label12:\n"
+	"dcbz      0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label12\n"
+	"blr\n"
+);
+
+__asm__(
+	".global DCTouchRange\n"
+	"DCTouchRange:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label13\n"
+	"addi      4, 4, 0x20\n"
+	"label13:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label14:\n"
+	"dcbt      0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label14\n"
+	"blr\n"
+);
+
+__asm__(
+	".global ICInvalidateRange\n"
+	"ICInvalidateRange:\n"
+	"cmplwi    4, 0\n"
+	"blelr\n"
+	"clrlwi.   5, 3, 27\n"
+	"beq       label15\n"
+	"addi      4, 4, 0x20\n"
+	"label15:\n"
+	"addi      4, 4, 0x1F\n"
+	"srwi      4, 4, 5\n"
+	"mtctr     4\n"
+	"label16:\n"
+	"icbi      0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label16\n"
+	"sync\n"
+	"isync\n"
+	"blr\n"
+);
 
 __asm__(
 	".global ICFlashInvalidate\n"
 	"ICFlashInvalidate:\n"
-	"mfspr      3, 0x3F0\n"
-	"ori        3, 3, 0x800\n"
-	"mtspr      0x3F0, 3\n"
+	"mfspr     3, 0x3F0\n"
+	"ori       3, 3, 0x800\n"
+	"mtspr     0x3F0, 3\n"
 	"blr\n"
 );
 
@@ -50,30 +179,44 @@ __asm__(
 	".global ICEnable\n"
 	"ICEnable:\n"
 	"isync\n"
-	"mfspr      3, 0x3F0\n"
-	"ori        3, 3, 0x8000\n"
-	"mtspr      0x3F0, 3\n"
+	"mfspr     3, 0x3F0\n"
+	"ori       3, 3, 0x8000\n"
+	"mtspr     0x3F0, 3\n"
 	"blr\n"
 );
-//LCDisable
+
+__asm__(
+	".global LCDisable\n"
+	"LCDisable:\n"
+	"lis       3, 0xE000\n"
+	"li        4, 0x200\n"
+	"mtctr     4\n"
+	"label17:\n"
+	"dcbi      0, 3\n"
+	"addi      3, 3, 0x20\n"
+	"bdnz      label17\n"
+	"mfspr     4, 0x398\n"
+	"rlwinm    4, 4, 0,4,2\n"
+	"mtspr     0x398, 4\n"
+	"blr\n"
+);
 
 void L2GlobalInvalidate(void) {
-		asm("sync\n");
-		PPCMtl2cr(PPCMfl2cr() & 0x7FFFFFFF);
-		asm("sync\n");
-		PPCMtl2cr(PPCMfl2cr() & 0x200000);
-		while (PPCMfl2cr() & 1) {;} //idle stall
-		PPCMtl2cr(PPCMfl2cr() & 0x700000);
-		while (PPCMfl2cr() & 1) {
-			DBPrintf(">>> L2 INVALIDATE : SHOULD NEVER HAPPEN\n");
-		}
+	asm("sync\n");
+	PPCMtl2cr(PPCMfl2cr() & 0x7FFFFFFF);
+	asm("sync\n");
+	PPCMtl2cr(PPCMfl2cr() | 0x200000);
+	while (PPCMfl2cr() & 1) {;}
+	PPCMtl2cr(PPCMfl2cr() & 0x700000);
+	while (PPCMfl2cr() & 1)
+		DBPrintf(">>> L2 INVALIDATE : SHOULD NEVER HAPPEN\n");
 }
 
-void DMAErrorHandler(const char* error, uint32_t *context) {
-	OSReport(error); //inlined for some reason
+void DMAErrorHandler(const char *error, uint32_t *context) {
+	DBPrintf(error); //inlined for some reason
 	OSReport("Machine check received\n");
-	OSReport("HID2 = 0x%x   SRR1 = 0x%x\n", PPCMfhid2(), *(context + 0x19C)); //thread smth
-	if (PPCMfhid2() & 0xF00000 || *(context + 0x19C) & 0x200000 == 0) {
+	OSReport("HID2 = 0x%x   SRR1 = 0x%x\n", PPCMfhid2(), *(uint32_t*)(context + 0x19C));
+	if (PPCMfhid2() & 0xF00000 == 0 || *(uint32_t*)(context + 0x19C) & 0x200000 == 0) {
 		OSReport("Machine check was not DMA/locked cache related\n");
 		OSDumpContext(context);
 		PPCHalt();
@@ -92,27 +235,26 @@ void DMAErrorHandler(const char* error, uint32_t *context) {
 }
 
 void __OSCacheInit(void) {
-	if (PPCMfhid0() & 0x8000) {
+	if (PPCMfhid0() & 0x8000 == 0) {
 		ICEnable();
 		DBPrintf("L1 i-caches initialized\n");
 	}
-	if (PPCMfhid0() & 0x4000) {
+	if (PPCMfhid0() & 0x4000 == 0) {
 		DCEnable();
 		DBPrintf("L1 d-caches initialized\n");
 	}
-	if (PPCMfl2cr() & 0x80000000) {
+	if (PPCMfl2cr() & 0x80000000 == 0) {
 		uint32_t msr = PPCMfmsr(); //save it
 		asm("sync\n");
 		PPCMtmsr(0x30);
 		asm("sync\n");
-		asm("sync\n");
 		PPCMtl2cr(PPCMfl2cr() & 0x7FFFFFFF);
 		asm("sync\n");
 		L2GlobalInvalidate();
-		PPCMtmsr(msr); //restore
+		PPCMtmsr(msr);
 		PPCMtl2cr((PPCMfl2cr() | 0x80000000) & 0x700000);
 		DBPrintf("L2 cache initialized\n");
 	}
-	OSSetErrorHandler(1, (uint32_t*)DMAErrorHandler);
+	OSSetErrorHandler(1, (void*)DMAErrorHandler);
 	DBPrintf("Locked cache machine check handler installed\n");
 }

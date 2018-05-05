@@ -20,6 +20,11 @@
 void ClearArena(void);
 void InquiryCallback(uint32_t r3, uint32_t r4);
 void OSInit(void);
-void __OSSetExceptionHandler(uint8_t number, uint32_t* handler);
-uint32_t* __OSGetExceptionHandler(uint8_t number);
+void __OSDBIntegrator(void);
+void __OSDBJump(void); //idk
+void __OSSetExceptionHandler(int type, void* handler);
+uint32_t* __OSGetExceptionHandler(int type);
+void OSExceptionVector(uint32_t something, uint32_t* sprg0, uint32_t something2);
+void OSDefaultExceptionHandler(uint32_t unknown, uint32_t *context);
 void __OSPSInit(void);
+uint8_t __OSGetDIConfig(void);

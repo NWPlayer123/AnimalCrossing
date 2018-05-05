@@ -4,7 +4,7 @@ ENTRY(__start)
 SECTIONS
 {
 	. = 0x80003100;
-	.init : ALIGN(4) {
+	.init : ALIGN(4) { 
 		./build/sys/os/__start.o
 		./build/sys/os/__ppc_eabi_init.o
 		./build/sys/Runtime.PPCEABI.H/__mem.o
@@ -13,10 +13,8 @@ SECTIONS
 		dolphin_trk.o*/
 	}
 	. = 0x800056C0;
-    .rodata     : ALIGN(4) { *(.rodata*); . = ALIGN(4); }
-    .data       : ALIGN(4) { *(.data*); . = ALIGN(4); }
-    .bss        : ALIGN(8) { __bss_start = .; *(.bss* COMMON); . = ALIGN(8); __bss_end = .; }
-    .sbss       : ALIGN(8) { *(.sbss*); . = ALIGN(8); }
-
-    . = ALIGN(4);
+    .rodata     : ALIGN(4) { *(.rodata) }
+    .data       : ALIGN(4) { *(.data)   }
+    .bss        : ALIGN(8) { *(.bss)    }
+    .sbss       : ALIGN(8) { *(.sbss)   }
 }
