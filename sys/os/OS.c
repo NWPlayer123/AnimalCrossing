@@ -138,31 +138,33 @@ void OSExceptionInit(void) {
 	int i = 0;
 	if (*(uint32_t*)0x80000060 == 0) {
 		DBPrintf("Installing OSDBIntegrator\n");
-		memcpy((void*)0x80000060, (const void*)__OSDBIntegrator, __OSDBJump - __OSDBIntegrator);
-		DCFlushRangeNoSync((void*)0x80000060, __OSDBJump - __OSDBIntegrator);
+		memcpy((void*)0x80000060, __OSDBIntegrator, (uint32_t)__OSDBJump - (uint32_t)__OSDBIntegrator);
+		DCFlushRangeNoSync((void*)0x80000060, (uint32_t)__OSDBJump - (uint32_t)__OSDBIntegrator);
 		asm("sync\n");
-		ICInvalidateRange((void*)0x80000060, __OSDBJump - __OSDBIntegrator);
+		ICInvalidateRange((void*)0x80000060, (uint32_t)__OSDBJump - (uint32_t)__OSDBIntegrator);
 	}
 	for (i = 0; i < 16; i++) {
-		if (BI2DebugFlag && *(uint32_t*)BI2DebugFlag >= 2 && __DBIsExceptionMarked(i))
+		if (BI2DebugFlag && *(uint32_t*)BI2DebugFlag > 1 && __DBIsExceptionMarked(i)) {
 			DBPrintf(">>> OSINIT: exception %d commandeered by TRK\n", i);
-		else {
+		} else {
 			*(uint32_t*)(OSExceptionVector + 0x68) = 0x38600000 | i; //li r3, i
 			if (__DBIsExceptionMarked(i)) {
 				DBPrintf(">>> OSINIT: exception %d vectored to debugger\n", i);
 				*(uint32_t*)(OSExceptionVector + 0x58) = 0x48000063; //bla 0x60, from __OSDBJump
-			} else
-				*(uint32_t*)__OSDBJump = 0x60000000; //nop
+			} else {
+				*(uint32_t*)(OSExceptionVector + 0x58) = 0x60000000; //keep nop
+			}
 			memcpy(__OSExceptionLocations[i], OSExceptionVector, (uint32_t)OSDefaultExceptionHandler - (uint32_t)OSExceptionVector);
 			DCFlushRangeNoSync(__OSExceptionLocations[i], (uint32_t)OSDefaultExceptionHandler - (uint32_t)OSExceptionVector);
 			asm("sync\n");
 			ICInvalidateRange(__OSExceptionLocations[i], (uint32_t)OSDefaultExceptionHandler - (uint32_t)OSExceptionVector);
 		}
 	}
-	for (i = 0; i < 16; i++)
-		__OSSetExceptionHandler(i, (void*)OSDefaultExceptionHandler);
-	DBPrintf("Exceptions initialized...\n");
+	for (i = 0; i < 16; i++) { //install default, we can override later
+		__OSSetExceptionHandler(i, OSDefaultExceptionHandler);
+	}
 	*(uint32_t*)(OSExceptionVector + 0x68) = 0x38600000; //li r3, 0
+	DBPrintf("Exceptions installed...\n");
 }
 
 __asm__(
